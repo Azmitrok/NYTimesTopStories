@@ -8,12 +8,12 @@ namespace NYTimesTopStoriesAPI.Services
 {
     interface ISourceAPIService
     {
-        bool IsAPIWorking();
+        string GetAPIStatus();
         Task<IEnumerable<ArticleView>> GetListBySectionAsync(string section);
-        ArticleView GetListBySectionFirst(string section);
-        IEnumerable<ArticleView> GetListBySectionByUpdatedDate(string section, string updatedDate);
-        ArticleView GetArticleByShortUrl(string section);
-        IEnumerable<ArticleGroupByDateView> GetGroupsBySection(string section);
+        Task<ArticleView> GetListBySectionFirstAsync(string section);
+        Task<IEnumerable<ArticleView>> GetListBySectionByUpdatedDateAsync(string section, string updatedDate);
+        Task<ArticleView> GetArticleByShortUrlAsync(string shortUrl);
+        Task<IEnumerable<ArticleGroupByDateView>> GetGroupsBySectionAsync(string section);
 
 
     }

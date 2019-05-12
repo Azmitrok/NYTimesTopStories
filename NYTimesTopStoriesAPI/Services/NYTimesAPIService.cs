@@ -13,55 +13,79 @@ namespace NYTimesTopStoriesAPI.Services
         NYTimesApiProvider _apiProvider;
 
         private const string ApiKey = "46837SflDHAIiwq3sclJnOmqtAfbp5Xr";
+        private const string DefaultSectionName = "home";
 
         public NYTimesAPIService()
         {
             _apiProvider = new NYTimesApiProvider(ApiKey);
         }
 
-        public ArticleView GetArticleByShortUrl(string section)
+        public async Task<ArticleView> GetArticleByShortUrlAsync(string shortUrl)
         {
-            throw new NotImplementedException();
+            var content = await _apiProvider.GetArticlesBySection(DefaultSectionName);
+
+            var jTokenList = ((JArray)JObject.Parse(content)["results"]).Where(j => LastSevenChars(j.Value<string>("short_url")) == shortUrl);
+
+
+            return MapJsonResultToArticleViews(jTokenList ).FirstOrDefault();
+
         }
 
-        public IEnumerable<ArticleGroupByDateView> GetGroupsBySection(string section)
+        private string LastSevenChars(string str)
         {
-            throw new NotImplementedException();
+            return str.Substring(str.Length - 7);
+        }
+
+        public async Task<IEnumerable<ArticleGroupByDateView>> GetGroupsBySectionAsync(string section)
+        {
+            var content = await _apiProvider.GetArticlesBySection(section);
+
+            var jTokens = ((JArray)JObject.Parse(content)["results"]).ToObject<JToken[]>();
+
+            return jTokens.GroupBy(j => j.Value<DateTime>("updated_date").Date.ToShortDateString()).Select(g => new ArticleGroupByDateView { Date = g.Key, Total = g.Count() });
         }
 
         public async Task<IEnumerable<ArticleView>> GetListBySectionAsync(string section)
         {
             var content = await _apiProvider.GetArticlesBySection(section);
-
-            return MapJsonResultToArticleViews((JArray)JObject.Parse(content)["results"]);
+           
+            return MapJsonResultToArticleViews(((JArray)JObject.Parse(content)["results"]).ToObject<JToken[]>());
         }
 
-        private IEnumerable<ArticleView> MapJsonResultToArticleViews(JArray jArray)
-        {            
-            foreach (var jObject in jArray)
+        private IEnumerable<ArticleView> MapJsonResultToArticleViews(IEnumerable<JToken> jTokenList)
+        {
+            foreach (var jToken in jTokenList)
             {
                 yield return new ArticleView
                 {
-                    Heading = jObject.Value<string>("title"),
-                    Link = jObject.Value<string>("url"),
-                    Updated = jObject.Value<DateTime>("updated_date")
-                };                
-            }            
+                    Heading = jToken.Value<string>("title"),
+                    Link = jToken.Value<string>("url"),
+                    Updated = jToken.Value<DateTime>("updated_date")
+                };
+            }
         }
 
-        public IEnumerable<ArticleView> GetListBySectionByUpdatedDate(string section, string updatedDate)
+        public async Task<IEnumerable<ArticleView>> GetListBySectionByUpdatedDateAsync(string section, string updatedDate)
         {
-            throw new NotImplementedException();
+            var list = await GetListBySectionAsync(section);
+
+            var date = DateTime.Parse(updatedDate);
+
+            return list.Where(a => a.Updated.Date == date);
         }
 
-        public ArticleView GetListBySectionFirst(string section)
+        public async Task<ArticleView> GetListBySectionFirstAsync(string section)
         {
-            throw new NotImplementedException();
+            var list = await GetListBySectionAsync(section);
+
+            return list.FirstOrDefault();
         }
 
-        public bool IsAPIWorking()
-        {
-            throw new NotImplementedException();
+        public string GetAPIStatus()
+        {            
+            var statusResult = JObject.Parse(_apiProvider.GetArticlesBySection(DefaultSectionName).Result).Value<string>("status");
+
+            return $"status:\"{statusResult}\"";
         }
     }
 }
