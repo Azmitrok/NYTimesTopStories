@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace NYTimesTopStoriesAPI.Services
+namespace NYTimesTopStoriesAPI
 {
     [Serializable]
     internal class ApiException : Exception

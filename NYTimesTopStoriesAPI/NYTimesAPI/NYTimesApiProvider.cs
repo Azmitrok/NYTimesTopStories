@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace NYTimesTopStoriesAPI.NYTimesAPI
+namespace NYTimesTopStoriesAPI
 {
     public class NYTimesApiProvider
     {
