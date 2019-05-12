@@ -12,7 +12,7 @@ namespace NYTimesTopStoriesAPI.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            var service
+            
         }
     }
 }
