@@ -2,6 +2,7 @@
 using NYTimesTopStoriesAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -9,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace NYTimesTopStoriesAPI
 {
-    public class NYTimesApiProvider
+    public class NYTimesApiProvider : IApiProvider
     {
         private const string TopStoriesBySectionUrlTemplate = "https://api.nytimes.com/svc/topstories/v2/{0}.json?api-key={1}";
 
         private readonly string _apiKey;
 
-        public NYTimesApiProvider(string apiKey)
+        public NYTimesApiProvider()
         {
-            _apiKey = apiKey;
+            _apiKey = ConfigurationManager.AppSettings["NYTimesApiKey"];
         }
 
-        public async Task<string> GetArticlesBySection(string section)
+        public async Task<string> GetArticlesBySectionContent(string section)
         {                        
             using (var client = new HttpClient())
             {

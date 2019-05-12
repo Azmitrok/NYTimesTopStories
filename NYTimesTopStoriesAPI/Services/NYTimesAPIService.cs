@@ -11,19 +11,19 @@ namespace NYTimesTopStoriesAPI.Services
 {
     public class NYTimesAPIService : ISourceAPIService
     {
-        NYTimesApiProvider _apiProvider;
+        IApiProvider _apiProvider;
 
         //private const string ApiKey = "46837SflDHAIiwq3sclJnOmqtAfbp5Xr";
         private const string DefaultSectionName = "home";
 
-        public NYTimesAPIService()
-        {            
-            _apiProvider = new NYTimesApiProvider(ConfigurationManager.AppSettings["NYTimesApiKey"]);
+        public NYTimesAPIService(IApiProvider apiProvider)
+        {
+            _apiProvider = apiProvider;
         }
 
         public async Task<ArticleView> GetArticleByShortUrlAsync(string shortUrl)
         {
-            var content = await _apiProvider.GetArticlesBySection(DefaultSectionName);            
+            var content = await _apiProvider.GetArticlesBySectionContent(DefaultSectionName);            
 
             var jTokenList = ((JArray)JObject.Parse(content)["results"]).Where(j => GetLastSevenChars(j.Value<string>("short_url")) == shortUrl);
 
@@ -32,7 +32,7 @@ namespace NYTimesTopStoriesAPI.Services
 
         public async Task<IEnumerable<ArticleGroupByDateView>> GetGroupsBySectionAsync(string section)
         {
-            var content = await _apiProvider.GetArticlesBySection(section);
+            var content = await _apiProvider.GetArticlesBySectionContent(section);
 
             var jTokens = ((JArray)JObject.Parse(content)["results"]).ToObject<JToken[]>();
 
@@ -41,7 +41,7 @@ namespace NYTimesTopStoriesAPI.Services
 
         public async Task<IEnumerable<ArticleView>> GetListBySectionAsync(string section)
         {
-            var content = await _apiProvider.GetArticlesBySection(section);            
+            var content = await _apiProvider.GetArticlesBySectionContent(section);            
 
             return MapJsonResultToArticleViews(((JArray)JObject.Parse(content)["results"]).ToObject<JToken[]>());
         }
@@ -77,7 +77,7 @@ namespace NYTimesTopStoriesAPI.Services
 
         public string GetAPIStatus()
         {
-            var statusResult = JObject.Parse(_apiProvider.GetArticlesBySection(DefaultSectionName).Result).Value<string>("status");
+            var statusResult = JObject.Parse(_apiProvider.GetArticlesBySectionContent(DefaultSectionName).Result).Value<string>("status");
 
             return $"status:\"{statusResult}\"";
         }

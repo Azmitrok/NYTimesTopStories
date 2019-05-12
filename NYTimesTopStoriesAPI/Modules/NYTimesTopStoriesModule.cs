@@ -14,11 +14,12 @@ namespace NYTimesTopStoriesAPI.Modules
     {
         private ISourceAPIService _sourceApiService;
 
-        public NYTimesTopStoriesModule(ISourceAPIService apiService)
+        public NYTimesTopStoriesModule(IApiProvider apiProvider)
         {
-            _sourceApiService = apiService;
+            _sourceApiService = new NYTimesAPIService(apiProvider);
 
-            Get("/", _ => {                
+            Get("/", _ =>
+            {
                 try
                 {
                     return Response.AsJson(_sourceApiService.GetAPIStatus());
