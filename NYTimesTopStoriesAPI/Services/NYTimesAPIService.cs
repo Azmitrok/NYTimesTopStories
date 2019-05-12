@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -12,29 +13,22 @@ namespace NYTimesTopStoriesAPI.Services
     {
         NYTimesApiProvider _apiProvider;
 
-        private const string ApiKey = "46837SflDHAIiwq3sclJnOmqtAfbp5Xr";
+        //private const string ApiKey = "46837SflDHAIiwq3sclJnOmqtAfbp5Xr";
         private const string DefaultSectionName = "home";
 
         public NYTimesAPIService()
-        {
-            _apiProvider = new NYTimesApiProvider(ApiKey);
+        {            
+            _apiProvider = new NYTimesApiProvider(ConfigurationManager.AppSettings["NYTimesApiKey"]);
         }
 
         public async Task<ArticleView> GetArticleByShortUrlAsync(string shortUrl)
         {
-            var content = await _apiProvider.GetArticlesBySection(DefaultSectionName);
+            var content = await _apiProvider.GetArticlesBySection(DefaultSectionName);            
 
-            var jTokenList = ((JArray)JObject.Parse(content)["results"]).Where(j => LastSevenChars(j.Value<string>("short_url")) == shortUrl);
+            var jTokenList = ((JArray)JObject.Parse(content)["results"]).Where(j => GetLastSevenChars(j.Value<string>("short_url")) == shortUrl);
 
-
-            return MapJsonResultToArticleViews(jTokenList ).FirstOrDefault();
-
-        }
-
-        private string LastSevenChars(string str)
-        {
-            return str.Substring(str.Length - 7);
-        }
+            return MapJsonResultToArticleViews(jTokenList).FirstOrDefault();
+        }        
 
         public async Task<IEnumerable<ArticleGroupByDateView>> GetGroupsBySectionAsync(string section)
         {
@@ -47,8 +41,8 @@ namespace NYTimesTopStoriesAPI.Services
 
         public async Task<IEnumerable<ArticleView>> GetListBySectionAsync(string section)
         {
-            var content = await _apiProvider.GetArticlesBySection(section);
-           
+            var content = await _apiProvider.GetArticlesBySection(section);            
+
             return MapJsonResultToArticleViews(((JArray)JObject.Parse(content)["results"]).ToObject<JToken[]>());
         }
 
@@ -82,10 +76,19 @@ namespace NYTimesTopStoriesAPI.Services
         }
 
         public string GetAPIStatus()
-        {            
+        {
             var statusResult = JObject.Parse(_apiProvider.GetArticlesBySection(DefaultSectionName).Result).Value<string>("status");
 
             return $"status:\"{statusResult}\"";
         }
+
+        #region Private
+
+        private string GetLastSevenChars(string str)
+        {
+            return str.Substring(str.Length - 7);
+        }        
+
+        #endregion
     }
 }

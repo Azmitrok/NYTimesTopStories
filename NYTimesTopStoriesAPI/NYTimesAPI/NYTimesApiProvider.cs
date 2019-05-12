@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NYTimesTopStoriesAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +21,18 @@ namespace NYTimesTopStoriesAPI.NYTimesAPI
         }
 
         public async Task<string> GetArticlesBySection(string section)
-        {            
+        {                        
             using (var client = new HttpClient())
             {
-                return await client.GetStringAsync(String.Format(TopStoriesBySectionUrlTemplate, section, _apiKey));
+                try
+                {
+                    return await client.GetStringAsync(String.Format(TopStoriesBySectionUrlTemplate, section, _apiKey));
+                }
+                catch(Exception exc)
+                {
+                    throw new ApiException( exc.Message );
+                }
+                
                 
             }
         }

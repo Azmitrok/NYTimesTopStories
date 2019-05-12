@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NYTimesTopStoriesAPI.Services
 {
-    interface ISourceAPIService
+    public interface ISourceAPIService
     {
         string GetAPIStatus();
         Task<IEnumerable<ArticleView>> GetListBySectionAsync(string section);
