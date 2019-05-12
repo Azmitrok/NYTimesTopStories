@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Nancy.Owin;
 
 namespace NYTimesTopStoriesAPI
 {
@@ -20,6 +21,8 @@ namespace NYTimesTopStoriesAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseOwin(b => b.UseNancy());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
