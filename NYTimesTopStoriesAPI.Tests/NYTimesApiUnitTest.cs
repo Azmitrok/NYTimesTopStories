@@ -35,13 +35,9 @@ namespace NYTimesTopStoriesAPI.Tests
         [TestMethod]
         public void GetListBySectionTest()
         {
-            IEnumerable<ArticleView> articles = _service.GetListBySectionAsync("home").Result;
+            IEnumerable<ArticleView> articles = _service.GetListBySectionAsync("home").Result;            
 
-            List<ArticleView> articlesList = new List<ArticleView>();
-            foreach (var article in articles)
-                articlesList.Add(article);
-
-            Assert.AreEqual(_sourceJArrayResults.Count, articlesList.Count);
+            Assert.AreEqual(_sourceJArrayResults.Count, articles.Count());
         }
 
         [TestMethod]
@@ -55,15 +51,11 @@ namespace NYTimesTopStoriesAPI.Tests
         [TestMethod]
         public void GetListBySectionByUpdatedDateTest()
         {
-            IEnumerable<ArticleView> articles = _service.GetListBySectionByUpdatedDateAsync("home", "2019-05-10").Result;
+            IEnumerable<ArticleView> articles = _service.GetListBySectionByUpdatedDateAsync("home", "2019-05-10").Result;            
 
-            List<ArticleView> articlesList = new List<ArticleView>();
-            foreach (var article in articles)
-                articlesList.Add(article);
-
-            Assert.AreEqual(8, articlesList.Count);
+            Assert.AreEqual(8, articles.Count());
         }
-
+        
         [TestMethod]
         public void GetArticleByShortUrlTest()
         {
